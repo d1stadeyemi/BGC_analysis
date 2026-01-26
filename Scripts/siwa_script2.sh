@@ -1,19 +1,21 @@
 #!/bin/bash
 
 ###############################################################################
-# Metagenomic assembly, binning, MAG classification, and phylogenomics pipeline
+# Assembly, binning, MAG classification, and phylogenomic pipeline
+#
+# This script automatically consumes cleaned paired-end reads produced by
+# Script 1 (fastp_output/*_cleaned_R1.fastq).
 #
 # Steps:
-# 1. Assemble reads using MEGAHIT
-# 2. Bin contigs and refine MAGs using MetaWRAP
-# 3. Assign taxonomy to MAGs using GTDB-Tk
-# 4. Place MAGs in a GTDB-based phylogenomic tree using GToTree
+# 1. Assembly with MEGAHIT
+# 2. Binning and refinement with MetaWRAP
+# 3. Taxonomic classification with GTDB-Tk
+# 4. Phylogenomic placement with GToTree
 #
 # Author: Muhammad Ajagbe
 # Year: 2025
 ###############################################################################
 
-# Exit immediately on error, undefined variable, or pipe failure
 set -euo pipefail
 
 # Load Conda
@@ -23,15 +25,23 @@ source ~/miniconda3/etc/profile.d/conda.sh
 # User-configurable params
 ############################
 THREADS=4
-MEMORY=800          # MB for MetaWRAP reassembly
+MEMORY=800
 BIN_COMPLETENESS=50
 BIN_CONTAMINATION=10
 
 ############################
-# Argument checking
+# Check Script 1 outputs
 ############################
-if [[ $# -lt 2 || $(($# % 2)) -ne 0 ]]; then
-    echo "Usage: $0 Sample1_R1 Sample1_R2 [Sample2_R1 Sample2_R2 ...]"
+if [[ ! -d fastp_output ]]; then
+    echo "Error: fastp_output/ directory not found."
+    echo "Run Script 1 before running this pipeline."
+    exit 1
+fi
+
+READS_R1=(fastp_output/*_cleaned_R1.fastq)
+
+if [[ ${#READS_R1[@]} -eq 0 ]]; then
+    echo "Error: No cleaned reads found in fastp_output/"
     exit 1
 fi
 
@@ -41,26 +51,23 @@ fi
 mkdir -p logs megahit_output metawrap_output gtotree_output
 
 ###############################################################################
-# Main loop over read pairs
+# Main loop over samples
 ###############################################################################
-while [[ $# -gt 0 ]]; do
+for CLEANED_R1 in "${READS_R1[@]}"; do
 
-    CLEANED_R1=$1
-    CLEANED_R2=$2
+    CLEANED_R2=${CLEANED_R1/_cleaned_R1.fastq/_cleaned_R2.fastq}
 
-    # Extract sample name more robustly
-    SAMPLE_NAME=$(basename "$CLEANED_R1")
-    SAMPLE_NAME=${SAMPLE_NAME%%_*}
-
-    ####################################
-    # Input validation
-    ####################################
-    if [[ ! -f "$CLEANED_R1" || ! -f "$CLEANED_R2" ]]; then
-        echo "Error: Input files not found:"
-        echo "  $CLEANED_R1"
-        echo "  $CLEANED_R2"
+    if [[ ! -f "$CLEANED_R2" ]]; then
+        echo "Error: Missing R2 pair for $CLEANED_R1"
         exit 1
     fi
+
+    SAMPLE_NAME=$(basename "$CLEANED_R1")
+    SAMPLE_NAME=${SAMPLE_NAME%%_cleaned_R1.fastq}
+
+    echo "=============================="
+    echo "Processing sample: $SAMPLE_NAME"
+    echo "=============================="
 
     ####################################
     # 1. Assembly with MEGAHIT
@@ -76,12 +83,11 @@ while [[ $# -gt 0 ]]; do
         > logs/"${SAMPLE_NAME}_megahit.log" 2>&1
 
     conda deactivate
-    echo "[$SAMPLE_NAME] MEGAHIT completed."
 
     ####################################
     # 2. Binning and refinement with MetaWRAP
     ####################################
-    echo "[$SAMPLE_NAME] Running MetaWRAP binning..."
+    echo "[$SAMPLE_NAME] Running MetaWRAP..."
     conda activate metawrap
 
     metawrap binning \
@@ -110,10 +116,9 @@ while [[ $# -gt 0 ]]; do
         > logs/"${SAMPLE_NAME}_reassembled_bins.log" 2>&1
 
     conda deactivate
-    echo "[$SAMPLE_NAME] MetaWRAP completed."
 
     ####################################
-    # 3. Taxonomic classification with GTDB-Tk
+    # 3. GTDB-Tk classification
     ####################################
     echo "[$SAMPLE_NAME] Running GTDB-Tk..."
     conda activate gtdbtk
@@ -121,11 +126,10 @@ while [[ $# -gt 0 ]]; do
     MAG_DIR=metawrap_output/"${SAMPLE_NAME}_reassembled_bins"/reassembled_bins
 
     if [[ ! -d "$MAG_DIR" || -z "$(ls -A "$MAG_DIR")" ]]; then
-        echo "Error: MAG directory missing or empty: $MAG_DIR"
+        echo "Error: No MAGs found for $SAMPLE_NAME"
         exit 1
     fi
 
-    # Remove old output if rerunning
     rm -rf metawrap_output/"${SAMPLE_NAME}_gtdbtk"
 
     gtdbtk classify_wf \
@@ -135,7 +139,6 @@ while [[ $# -gt 0 ]]; do
         > logs/"${SAMPLE_NAME}_gtdbtk.log" 2>&1
 
     conda deactivate
-    echo "[$SAMPLE_NAME] GTDB-Tk completed."
 
     ####################################
     # 4. Phylogenomics with GToTree
@@ -145,7 +148,6 @@ while [[ $# -gt 0 ]]; do
 
     mkdir -p gtotree_output/"$SAMPLE_NAME"
 
-    # GToTree expects a directory of genomes using -d
     GToTree \
         -d "$MAG_DIR" \
         -H bacteria \
@@ -154,12 +156,7 @@ while [[ $# -gt 0 ]]; do
         > logs/"${SAMPLE_NAME}_gtotree.log" 2>&1
 
     conda deactivate
-    echo "[$SAMPLE_NAME] GToTree completed."
 
-    ####################################
-    # Move to next sample
-    ####################################
-    shift 2
 done
 
-echo "Pipeline completed successfully for all samples."
+echo "Script 2: Pipeline completed successfully for all samples."
