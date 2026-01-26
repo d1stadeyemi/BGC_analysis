@@ -9,7 +9,7 @@
 # 3. Assign taxonomy to MAGs using GTDB-Tk
 # 4. Place MAGs in a GTDB-based phylogenomic tree using GToTree
 #
-# Author: <Your Name>
+# Author: Muhammad Ajagbe
 # Year: 2025
 ###############################################################################
 
