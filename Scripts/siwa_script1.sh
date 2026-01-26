@@ -13,7 +13,7 @@
 # cleaned reads, sequencing quality metrics, taxonomic profiles,
 # and diversity estimates suitable for downstream analysis.
 #
-# Author: <Your Name>
+# Author: Muhammad Ajagbe
 # Year: 2025
 ###############################################################################
 
