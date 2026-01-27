@@ -1,126 +1,151 @@
 #!/bin/bash
 
+###############################################################################
+# Biosynthetic Gene Cluster (BGC) discovery and abundance analysis pipeline
+#
+# Steps:
+# 1. Detect BGCs from MAGs and unbinned contigs using antiSMASH
+# 2. Rename and consolidate BGC GenBank files
+# 3. Estimate BGC abundance using BiG-MAP
+# 4. Assess BGC novelty by comparison with MiBIG using BiG-SLICE
+#
+# This script automatically consumes outputs from:
+#   - Script 1: fastp_output (cleaned reads)
+#   - Script 2: metawrap_output and megahit_output
+#
+# Author: Muhammad Ajagbe
+# Year: 2024
+###############################################################################
+
+set -euo pipefail
+
 # Load Conda
 source ~/miniconda3/etc/profile.d/conda.sh
 
-# Error on undefined variables
-set -u 
- 
-# This script detects BGCs from MAGs and unbinned contigs Fasta files. 
-# Calculates the abundance of BGCs in each sample. 
-# Compares the putative BGCs with MiBIG and BGC atlas databases for novelty check.
+############################
+# Create output directories
+############################
+mkdir -p logs antismash_output BGCs bigmap_output bigslice_output
 
-mkdir -p logs antismash_output BGCs bigmap_output
+############################
+# Auto-detect inputs
+############################
 
-# Ensure at least one directory is provided 
-if [[ $# -lt 1 ]]; then
-    echo "Error: No input directory provided."
-    echo "Usage: $(basename "$0") <MAGS_DIR> [<MAGS_DIR2>...]"
+# MAGs from Script 2
+MAG_DIRS=(metawrap_output/*_reassembled_bins/reassembled_bins)
+
+# Unbinned contigs from Script 2
+CONTIGS=(megahit_output/*_output/contigs.fa)
+
+# Cleaned reads from Script 1
+READS_R1=(fastp_output/*_cleaned_R1.fastq)
+READS_R2=(fastp_output/*_cleaned_R2.fastq)
+
+if [[ ${#MAG_DIRS[@]} -eq 0 && ${#CONTIGS[@]} -eq 0 ]]; then
+    echo "Error: No MAGs or contigs detected from Script 2 outputs."
     exit 1
 fi
 
-while [[ $# -gt 0 ]]; then
-    # Define input directory 
-    INPUT_DIR=$1
-    SAMPLE_NAME=$(basename "$INPUT_DIR" | cut -d"_" -f1) # Extract sample name  
+if [[ ${#READS_R1[@]} -eq 0 || ${#READS_R2[@]} -eq 0 ]]; then
+    echo "Error: Cleaned reads from Script 1 not found."
+    exit 1
+fi
 
-    # Check if input directory is not valid. 
-    if [[ ! -d "$INPUT_DIR" ]]
-    then
-        echo "Error: "$INPUT_DIR" is not a valid directory"
-        echo "Usage: $(basename $0) <MAGS_DIR>"
-        exit 1
-    fi
+###############################################################################
+# 1. Detect BGCs with antiSMASH
+###############################################################################
+conda activate antismash
 
-    # Check if input directory is empty
-    if ! find "$INPUT_DIR" -mindepth 1 | read -r _; then
-        echo "Error: '$INPUT_DIR' is empty."
-        exit 1
-    fi
+echo "Running antiSMASH on MAGs and unbinned contigs..."
 
-    # 1. Detect BGCs in samples with Antismash
-    conda activate antismash
-    echo "Running Antismash on ${SAMPLE_NAME}_MAGs..."
-    
+for INPUT_DIR in "${MAG_DIRS[@]}"; do
+
+    SAMPLE_NAME=$(basename "$(dirname "$INPUT_DIR")" | cut -d"_" -f1)
+
     for fasta_file in "$INPUT_DIR"/*.fa; do
-        # Define output directory for antismash outputs.
         OUTPUT_DIR=antismash_output/${SAMPLE_NAME}_$(basename "$fasta_file" .fa)
-        
-        echo "Running Antismash on $(basename "$fasta_file")..." 
 
-        antismash --output-dir "$OUTPUT_DIR" --tigrfam --asf --cc-mibig --cb-general \
-        --cb-subclusters --cb-knownclusters --pfam2go --rre --smcog-trees --tfbs \
-        --genefinding-tool prodigal-m "$fasta_file" \
-        > logs/"$OUTPUT_DIR".log 2>&1
-
-        if [[ $? -ne 0 ]]
-        then
-            echo "Error: Antismash failed for $(basename "$fasta_file")"
-            echo "Check logs/"$OUTPUT_DIR".log for details"
-            exit 1
-        fi
-
-        echo "Antismash completed for $(basename "$fasta_file"). Output saved to ${OUTPUT_DIR}"
-
+        antismash \
+            --output-dir "$OUTPUT_DIR" \
+            --tigrfam --asf --cc-mibig --cb-general \
+            --cb-subclusters --cb-knownclusters --pfam2go \
+            --rre --smcog-trees --tfbs \
+            --genefinding-tool prodigal-m \
+            "$fasta_file" \
+            > logs/"$(basename "$OUTPUT_DIR")".log 2>&1
     done
-    
-    conda deativate
-    echo "Antismash complete for ${SAMPLE_NAME}_MAGs..."
-
-    # 2. Rename BGC files
-    echo "Renaming BGCs by adding prefixes with sample names..."
-
-    find antismash_output -name "*.region001.gbk" -exec sh -c '
-        for file; do
-            mv "$file" "$(dirname "$file")/${SAMPLE_NAME}_$(basename "$file")"
-    ' _ {} +
-
-    # Collect all BGCs into a directory
-    find antismash_output -name "*.region001.gbk" -exec mv -t BGC {} +
-
-    # 3. Determine the abundance of BGCs with BIG-MAP
-    conda activate BiG-MAP_process
-
-    # Group BGCs into GCF with BiG-MAP.family.py
-    python3 ~/BiG-MAP/src/BiG-MAP.family.py -D BGCs -b ~/BiG-SCAPE-1.1.9 \
-    -pf ~/BiG-SCAPE-1.1.9 -O bigmap_output/BiG-MAP.family_output \
-    > logs/bigmap_output/BiG-MAP.family_output.log 2>&1 
-    
-    if [[ $? -ne 0 ]]
-    then
-        echo "Error: BiG-MAP_process failed."
-        echo "Check logs/bigmap_output/BiG-MAP.family_output.log for details"
-        exit 1
-    fi
-
-    # Calculate BGC abundance with BiG-MAP.map.py
-    python3 ~/BiG-MAP/src/BiG-MAP.map.py -I1 clean_reads/*qc_1* -I2 clean_reads/*qc_2* \
-    -O bigmap_output/BiG-MAP.map_output -F bigmap_output/BiG-MAP.family_output \
-    > logs/bigmap_output/BiG-MAP.map_output.log 2>&1
-
-    if [[ $? -ne 0 ]]
-    then
-        echo "Error: BiG-MAP_process failed."
-        echo "Check logs/bigmap_output/BiG-MAP.map_output.log for details"
-        exit 1
-    fi
-
-    conda deactivate
-    echo "BiG-MAP completed successfully."
-
-    # 4. Compare BGCs with MiBIG BGCs using BiG-SLICE v2
-    conda activate bigslice
-
-    # Extract pfam domains in MiBiG BGCs and calculate cosine distance (default threshold=0.4)
-    # to form GCFs
-    bigslice -i bigslice_mibig_input bigslice_mibig_output
-
-    # Compare BGCs to MibiG GCFs
-    bigslice --query BGCs --n_ranks 2 bigslice_mibig_output
-
-    conda deactivate
-    echo "BiG-SLICE complete successfully."
-
 done
 
-# Pipeline successfully completed.
+# Run antiSMASH on unbinned contigs
+for contig in "${CONTIGS[@]}"; do
+    SAMPLE_NAME=$(basename "$(dirname "$contig")" | cut -d"_" -f1)
+    OUTPUT_DIR=antismash_output/${SAMPLE_NAME}_unbinned_contigs
+
+    antismash \
+        --output-dir "$OUTPUT_DIR" \
+        --tigrfam --asf --cc-mibig --cb-general \
+        --cb-subclusters --cb-knownclusters --pfam2go \
+        --rre --smcog-trees --tfbs \
+        --genefinding-tool prodigal-m \
+        "$contig" \
+        > logs/"${SAMPLE_NAME}_unbinned_antismash.log" 2>&1
+done
+
+conda deactivate
+echo "antiSMASH completed."
+
+###############################################################################
+# 2. Rename and collect BGC GenBank files
+###############################################################################
+echo "Renaming and collecting BGC files..."
+
+find antismash_output -name "*.region*.gbk" | while read -r file; do
+    SAMPLE=$(basename "$(dirname "$file")" | cut -d"_" -f1)
+    mv "$file" "$(dirname "$file")/${SAMPLE}_$(basename "$file")"
+done
+
+find antismash_output -name "*.region*.gbk" -exec mv {} BGCs/ \;
+
+###############################################################################
+# 3. BGC abundance estimation with BiG-MAP
+###############################################################################
+conda activate BiG-MAP_process
+
+python3 ~/BiG-MAP/src/BiG-MAP.family.py \
+    -D BGCs \
+    -b ~/BiG-SCAPE-1.1.9 \
+    -pf ~/BiG-SCAPE-1.1.9 \
+    -O bigmap_output/BiG-MAP.family_output \
+    > logs/BiG-MAP.family.log 2>&1
+
+python3 ~/BiG-MAP/src/BiG-MAP.map.py \
+    -I1 fastp_output/*_cleaned_R1.fastq \
+    -I2 fastp_output/*_cleaned_R2.fastq \
+    -O bigmap_output/BiG-MAP.map_output \
+    -F bigmap_output/BiG-MAP.family_output \
+    > logs/BiG-MAP.map.log 2>&1
+
+conda deactivate
+echo "BiG-MAP completed."
+
+###############################################################################
+# 4. BGC novelty assessment with BiG-SLICE
+###############################################################################
+conda activate bigslice
+
+bigslice \
+    -i bigslice_mibig_input \
+    bigslice_output/mibig_gcf
+
+bigslice \
+    --query BGCs \
+    --n_ranks 2 \
+    bigslice_output/mibig_gcf
+
+conda deactivate
+echo "BiG-SLICE completed."
+
+###############################################################################
+# Pipeline finished
+###############################################################################
+echo "Script 3: BGC discovery and analysis pipeline completed successfully."
