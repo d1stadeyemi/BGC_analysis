@@ -1,4 +1,4 @@
-# 🧬 Unraveling Novel Biosynthetic Gene Clusters from the Siwa Oasis Microbiome
+# 🧬 Siwa Spring Microbiomes as Reservoirs of Biosynthetic Gene Clusters: Unlocking Natural Product Potential
 
 ## Overview
 This repository contains a **fully automated, reproducible metagenomic analysis pipeline** developed for the study:
