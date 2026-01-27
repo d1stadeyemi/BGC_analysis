@@ -13,7 +13,7 @@
 # 4. Phylogenomic placement with GToTree
 #
 # Author: Muhammad Ajagbe
-# Year: 2025
+# Year: 2024
 ###############################################################################
 
 set -euo pipefail
