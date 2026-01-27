@@ -10,7 +10,9 @@ The project investigates microbial diversity and biosynthetic potential in two h
 
 The repository is structured as a **three-stage pipeline**, progressing from raw reads to phylogenomics and secondary metabolite discovery.
 
-![Key Findings](Images/key_findings.png)
+<p align="center">
+  <img src="Images/key_findings.png" width="900">
+</p>
 
 ---
 
@@ -99,15 +101,6 @@ These notebooks reproduce figures used in the manuscript and support exploratory
 - GTDB release r214  
 - MiBIG v4  
 - BGC Atlas  
-
----
-
-## 🔁 Reproducibility & Design Philosophy
-- Modular, script-based architecture
-- Explicit logging and defensive error handling
-- Automated input discovery between pipeline stages
-- Conda-managed environments for tool isolation
-- Designed for scalability and future workflow migration (e.g., Snakemake / Nextflow)
 
 ---
 
