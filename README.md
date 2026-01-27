@@ -11,7 +11,7 @@ The project investigates microbial diversity and biosynthetic potential in two h
 The repository is structured as a **three-stage pipeline**, progressing from raw reads to phylogenomics and secondary metabolite discovery.
 
 <p align="center">
-  <img src="Images/key_findings.png" width="900">
+  <img src="Images/key_findings.png" width="700">
 </p>
 
 ---
