@@ -109,7 +109,7 @@ These notebooks reproduce figures used in the manuscript and support exploratory
 ## 📚 Citation
 **Manuscript under review**
 
-> Ajagbe M., Elbehery A.H.A., Ahmed S.F., Ouf A., Abdoullateef B.M.T., Abdallah R., Siam R. (2025).  
+> Ajagbe M., Ahmed S.F., Ouf A., Abdoullateef B.M.T., Abdallah R., Siam R., Elbehery A.H.A. (2025).  
 > *Siwa Spring Microbiomes as Reservoirs of Biosynthetic Gene Clusters: Unlocking Natural Product Potential.*
 
 ---
