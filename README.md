@@ -11,7 +11,7 @@ The project investigates microbial diversity and biosynthetic potential in two h
 The repository is structured as a **three-stage pipeline**, progressing from raw reads to phylogenomics and secondary metabolite discovery.
 
 <p align="center">
-  <img src="Images/key_findings.png" width="700">
+  <img src="Images/key_findings.png" width="500">
 </p>
 
 ---
@@ -62,7 +62,9 @@ Main tasks:
 
 All scripts **automatically detect required inputs**, allowing the full pipeline to be executed sequentially with minimal user intervention.
 
-![Pipeline Overview](Images/Pipeline.png)
+<p align="center">
+  <img src="Images/Pipeline.png" width="500">
+</p>
 
 ---
 
