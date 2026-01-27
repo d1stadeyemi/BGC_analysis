@@ -14,7 +14,7 @@
 # and diversity estimates suitable for downstream analysis.
 #
 # Author: Muhammad Ajagbe
-# Year: 2025
+# Year: 2024
 ###############################################################################
 
 # Exit on error, undefined variable, or failed pipeline
