@@ -3,7 +3,7 @@
 ## Overview
 This repository contains a **fully automated, reproducible metagenomic analysis pipeline** developed for the study:
 
-**“Unraveling Novel Biosynthetic Gene Clusters from the Siwa Oasis Microbiome”**  
+**“Siwa Spring Microbiomes as Reservoirs of Biosynthetic Gene Clusters: Unlocking Natural Product Potential”**  
 *(Manuscript currently under peer review)*
 
 The project investigates microbial diversity and biosynthetic potential in two historically significant freshwater springs — **Cleopatra** and **Fatnas** — located in Egypt’s **Siwa Oasis**. Using genome-resolved metagenomics and advanced BGC mining approaches, this work identifies **novel microbial taxa and biosynthetic gene clusters (BGCs)** with potential pharmaceutical relevance.
