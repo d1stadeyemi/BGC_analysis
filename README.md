@@ -115,7 +115,7 @@ These notebooks reproduce figures used in the manuscript and support exploratory
 **Manuscript under review**
 
 > Ajagbe M., Elbehery A.H.A., Ahmed S.F., Ouf A., Abdoullateef B.M.T., Abdallah R., Siam R. (2025).  
-> *Unraveling Novel Biosynthetic Gene Clusters from the Siwa Oasis Microbiome.*
+> *Siwa Spring Microbiomes as Reservoirs of Biosynthetic Gene Clusters: Unlocking Natural Product Potential.*
 
 ---
 
