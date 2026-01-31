@@ -60,10 +60,7 @@ Main tasks:
 - BGC detection from MAGs and unbinned contigs (antiSMASH)
 - BGC clustering and abundance estimation (BiG-MAP)
 - Novelty assessment against MiBIG and BGC Atlas (BiG-SLICE)
-- **Functional and bioactivity prediction of BGC products (DeepBGC)**
-
-DeepBGC is applied in **meta-gene prediction mode**, and only predictions with  
-**DeepBGC scores > 0.6** are retained, enabling prioritization of **high-confidence novel BGCs**, including antimicrobial RiPPs and RiPP–NRPS hybrids.
+- Functional and bioactivity prediction of BGC products (DeepBGC)
 
 All scripts **automatically detect required inputs**, allowing the full pipeline to be executed sequentially with minimal user intervention.
 
