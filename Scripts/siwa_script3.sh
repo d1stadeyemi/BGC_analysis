@@ -146,6 +146,29 @@ conda deactivate
 echo "BiG-SLICE completed."
 
 ###############################################################################
+# 5. Functional activity prediction of BGC products with DeepBGC
+###############################################################################
+conda activate deepbgc
+
+echo "Running DeepBGC for functional activity prediction..."
+
+mkdir -p deepbgc_output
+
+# Run DeepBGC on all consolidated BGC GenBank files
+deepbgc pipeline \
+    --input BGCs \
+    --output deepbgc_output \
+    --prodigal-meta-mode \
+    --classifier-product \
+    --classifier-activity \
+    --score-cutoff 0.6 \
+    > logs/deepbgc.log 2>&1
+
+conda deactivate
+
+echo "DeepBGC functional prediction completed."
+
+###############################################################################
 # Pipeline finished
 ###############################################################################
 echo "Script 3: BGC discovery and analysis pipeline completed successfully."
