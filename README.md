@@ -53,7 +53,7 @@ Main tasks:
 ---
 
 ### **Script 3 — Biosynthetic Gene Cluster Discovery & Functional Prediction**
-**Input:** MAGs and unbinned contigs from Script 2 + cleaned reads from Script 1  
+**Input:** MAGs and unbinned contigs from Script 2 + cleaned reads from Script 1 (auto-detected)  
 **Output:** Annotated BGCs, abundance matrices, novelty and bioactivity predictions  
 
 Main tasks:
@@ -75,7 +75,7 @@ All scripts **automatically detect required inputs**, allowing the full pipeline
 
 ## 🔁 Reproducibility & Execution
 
-This pipeline was designed with **full reproducibility** in mind:
+This pipeline was designed for **full reproducibility**:
 
 - All major steps are implemented as **version-controlled shell scripts**
 - Inputs are **auto-detected** from previous pipeline stages
@@ -92,13 +92,13 @@ Assuming raw paired-end reads are available and Conda environments are properly 
 
 ```bash
 # Step 1: Read QC and profiling
-bash script1_read_qc_and_taxonomy.sh raw_reads/*_R1.fastq raw_reads/*_R2.fastq
+bash siwa_script1.sh raw_reads/*_R1.fastq raw_reads/*_R2.fastq
 
 # Step 2: Assembly, binning, and phylogenomics
-bash script2_assembly_binning_phylogenomics.sh fastp_output/*_cleaned_R1.fastq fastp_output/*_cleaned_R2.fastq
+bash siwa_script2.sh
 
 # Step 3: BGC discovery, abundance, novelty, and functional prediction
-bash script3_bgc_discovery_and_analysis.sh
+bash siwa_script3.sh
 ```
 
 ---
@@ -130,7 +130,8 @@ These notebooks reproduce figures used in the manuscript and support exploratory
 - antiSMASH v7.1.0  
 - BiG-MAP v1.0.0  
 - BiG-SCAPE  
-- BiG-SLICE v2  
+- BiG-SLICE v2
+- DeepBGC v0.1.31  
 
 ### Databases
 - CheckM database  
