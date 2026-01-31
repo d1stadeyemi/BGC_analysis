@@ -153,4 +153,4 @@ For questions or collaboration:
 📧 aelbehery@aucegypt.edu  
 📧 d1stadeyemi@gmail.com  
 
-🔗 LinkedIn: [Muhammad Ajagbe](https://www.linkedin.com/in/muhammad-ajagbe/)
+🔗 LinkedIn: [Muhammad Ajagbe](https://www.linkedin.com/in/muhammadajagbe/)  
