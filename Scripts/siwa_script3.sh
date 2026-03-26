@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Biosynthetic Gene Cluster (BGC) discovery and abundance analysis pipeline
+# Biosynthetic Gene Cluster (BGC) discovery and abundance analysis pipeline.
 #
 # Steps:
 # 1. Detect BGCs from MAGs and unbinned contigs using antiSMASH
