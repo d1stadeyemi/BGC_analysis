@@ -27,9 +27,9 @@ source ~/miniconda3/etc/profile.d/conda.sh
 # User-configurable params
 ############################
 THREADS=4
-KRAKEN_DB=kraken2_db   # <-- CHANGE THIS
-BRACKEN_DB=kraken2_db # usually same as Kraken DB
-READ_LEN=150                   # average read length for Bracken
+KRAKEN_DB=kraken2_db   
+BRACKEN_DB=kraken2_db 
+READ_LEN=150   # average read length for Bracken
 
 ############################
 # Argument checking
