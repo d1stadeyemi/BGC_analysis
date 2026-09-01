@@ -1,10 +1,9 @@
-# 🧬 Siwa Spring Microbiomes as Reservoirs of Biosynthetic Gene Clusters: Unlocking Natural Product Potential
+# 🧬 Siwa spring microbiomes as reservoirs of biosynthetic gene clusters: Unlocking natural product potential
 
 ## Overview
 This repository contains a **fully automated, reproducible metagenomic analysis pipeline** developed for the study:
 
-**“Siwa Spring Microbiomes as Reservoirs of Biosynthetic Gene Clusters: Unlocking Natural Product Potential”**  
-*(Manuscript currently under peer review)*
+**“Siwa spring microbiomes as reservoirs of biosynthetic gene clusters: Unlocking natural product potential”**  
 
 The project investigates microbial diversity and biosynthetic potential in two historically significant freshwater springs — **Cleopatra** and **Fatnas** — located in Egypt’s **Siwa Oasis**. Using genome-resolved metagenomics and state-of-the-art biosynthetic gene cluster (BGC) mining approaches, this work identifies **novel microbial taxa and biosynthetic gene clusters** with predicted pharmaceutical relevance.
 
@@ -140,11 +139,10 @@ These notebooks reproduce figures used in the manuscript and support exploratory
 ---
 
 ## 📚 Citation
-**Manuscript under review**
 
-> Ajagbe M., Ahmed S.F., Ouf A., Abdoullateef B.M.T., Abdallah R., Siam R., Elbehery A.H.A. (2025).  
-> *Siwa Spring Microbiomes as Reservoirs of Biosynthetic Gene Clusters: Unlocking Natural Product Potential.*
-
+> Ajagbe, M.A., Ahmed, S.F., Ouf, A., Abdoullateef, B.M., Abdallah, R.Z., Siam, R. and Elbehery, A.H., 2026.
+> Siwa spring microbiomes as reservoirs of biosynthetic gene clusters: Unlocking natural product potential.
+> *World Journal of Microbiology and Biotechnology*, 42(9), p.481. https://doi.org/10.1007/s11274-026-05208-1
 ---
 
 ## 📫 Contact
